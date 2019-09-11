@@ -5,10 +5,10 @@ class User < ActiveRecord::Base
 
     attr_accessor :current_bet
 
-    def bet
-        self.wallet.money -= 10
+    def bet(amount)
+        self.wallet.money -= amount
         @current_bet ||= 0
-        @current_bet += 10
+        @current_bet += amount
         self.wallet.money
     end
 

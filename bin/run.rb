@@ -1,5 +1,7 @@
 require_relative '../config/environment'
 
+ActiveRecord::Base.logger = nil
+
 
 
 puts "Welcome to texas-holdem poker!"
@@ -32,29 +34,47 @@ user_selection = prompt.select("Play, check wallet, add money, or exit?", ["Play
     if user_selection == "Check Wallet"
         puts user.wallet.money
     elsif user_selection == "Add Money"
-        user.wallet.money += 100
-        puts "You have #{user.wallet.money}"
-        user.save
+        isMoney = true
+        while isMoney
+        user_selection = prompt.ask("How much would you like to add? (max: 500)")
+        user_selection = user_selection.to_i
+        if user_selection > 500 || user_selection < 0 
+            puts "please enter something valid."
+        else
+            user.wallet.money += user_selection
+            puts "You have #{user.wallet.money}"
+            isMoney = false
+            user.wallet.save
+        end
+    end
     elsif user_selection == "Exit"
         exit
-    else 
+    elsif user_selection == "Play" && user.wallet.money > 0
         deck = Deck.new
-        user_hole_cards = deck.deal_cards
+        deck.save
+        userdeck = UserDeck.create
+        print user_hole_cards = deck.deal_cards
         computer_hole_cards = deck.deal_cards
-        user_selection = prompt.select("Bet 10 or fold", %w(Bet Fold))
+        user_selection = prompt.select("Bet or fold", %w(Bet Fold))
         if user_selection == "Bet"
-            puts "Your current wallet amount : #{user.bet}. Your current bet is #{user.current_bet}."
+            user_selection = prompt.select("How much would you like to bet? :", ["#{user.wallet.money}","#{(user.wallet.money * 0.75).to_i}","#{(user.wallet.money * 0.5).to_i}","#{(user.wallet.money * 0.25).to_i}","#{(user.wallet.money * 0.1).to_i}"])
+            user_selection = user_selection.to_i
+            puts "Your current wallet amount : #{user.bet(user_selection)}. Your current bet is #{user.current_bet}."
             print deck.flop
             puts "Your cards: #{user_hole_cards}"
-            user_selection2 = prompt.select("Bet 10 or fold?", %w(Bet Fold))
+            user_selection2 = prompt.select("Bet or fold?", %w(Bet Fold))
             if user_selection2 == "Bet"
-                puts "Your current wallet amount : #{user.bet}. Your current bet is #{user.current_bet}."
+                user_selection = prompt.select("How much would you like to bet? :", ["#{user.wallet.money}","#{(user.wallet.money * 0.75).to_i}","#{(user.wallet.money * 0.5).to_i}","#{(user.wallet.money * 0.25).to_i}","#{(user.wallet.money * 0.1).to_i}"])
+                user_selection = user_selection.to_i
+                puts "Your current wallet amount : #{user.bet(user_selection)}. Your current bet is #{user.current_bet}."
                 #user.bet
                 print deck.turn_or_river
                 puts "Your cards: #{user_hole_cards}"
-                user_selection3 = prompt.select("Bet 10 or fold?", %w(Bet Fold))
+                user_selection3 = prompt.select("Bet or fold?", %w(Bet Fold))
                 if user_selection3 == "Bet"
-                    puts "Your current wallet amount : #{user.bet}. Your current bet is #{user.current_bet}."
+                    user_selection = prompt.select("How much would you like to bet? :", ["#{user.wallet.money}","#{(user.wallet.money * 0.75).to_i}","#{(user.wallet.money * 0.5).to_i}","#{(user.wallet.money * 0.25).to_i}","#{(user.wallet.money * 0.1).to_i}"])
+                    user_selection = user_selection.to_i
+                    puts "Your current wallet amount : #{user.bet(user_selection)}. Your current bet is #{user.current_bet}."
                     #user.bet
                     print deck.turn_or_river
                     community_hand = deck.community_hand
@@ -70,13 +90,24 @@ user_selection = prompt.select("Play, check wallet, add money, or exit?", ["Play
                     if user_hand > computer_hand
                         user.wallet.money += user.current_bet * 2
                         puts "You won!"
+                        deck.outcome = "Win"
+                        user.user_decks << userdeck
+                        deck.user_decks << userdeck
+                        deck.save
                         user.current_bet = 0
+                        user.wallet.save
                     else
                         puts "You lost!"
+                        deck.outcome = "Lost"
+                        user.user_decks << userdeck
+                        deck.user_decks << userdeck
+                        deck.save
                         user.current_bet = 0
                         if user.wallet.money < 30
                             puts "You're out of money. Thanks for playing!"
+                            user.wallet.save
                         end
+                        user.wallet.save
                     end
      
                 else
