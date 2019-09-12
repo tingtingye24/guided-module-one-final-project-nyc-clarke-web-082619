@@ -29,7 +29,7 @@ def login
         login_create
     else 
         prompt.select ("Username not found. Would you like to create it?") do |menu|
-            menu.choice "Yes", -> {create}
+            menu.choice "Yes", -> {create(user)}
             menu.choice "No, try login again.", -> {login}
         end
     end
@@ -46,9 +46,9 @@ def cat_pix_image
     :resolution => "high"
 end
 
-def create
+def create(name=nil)
     prompt = TTY::Prompt.new
-    user = prompt.ask("Create username. Type 'exit' to go back.")
+    user = prompt.ask("Create username. Type 'exit' to go back.", default: name)
     if User.find_by(name: "#{user}")
     puts "Username already taken. Try again."
     elsif user == "exit"
