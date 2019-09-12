@@ -24,3 +24,12 @@ def displaycard(array)
   end
   
   displaycard(["3^","6#","9%"])
+
+  new_hash(array)
+  array.reduce({}) do |hash, num|
+    hash[num] ||= 0
+    hash[num] + 1
+  end
+end
+
+puts new_hash([1,2,2,3,3,4,5,5,5])

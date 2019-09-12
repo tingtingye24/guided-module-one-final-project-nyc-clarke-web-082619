@@ -52,14 +52,16 @@ def create
 end
 
 def win_p(user)
-    if user.win_percentage > 50
+    if user.win_percentage >= 50
         puts "You win #{user.win_percentage}% of the time."
+        puts "You fold #{user.fold_percentage}%"
         sleep(1)
-        puts "Wow you're a pro!"
+        puts "Wow, you're a pro!"
         sleep(1)
         play_add_money(user)
-    elsif user.win_percentage < 50 && user.win_percentage > 0
+    elsif user.win_percentage < 50 && user.win_percentage >= 0
         puts "You win #{user.win_percentage}% of the time."
+        puts "You fold #{user.fold_percentage}%"
         sleep(1)
         puts "You can do better!"
             sleep(1)
@@ -114,21 +116,21 @@ def add_money(user)
 
 end
 
-def play(user)
-    prompt = TTY::Prompt.new
-    deck = Deck.new
-    deck.save
-    userdeck = UserDeck.create
-    print user_hole_cards = deck.deal_cards
-    computer_hole_cards = deck.deal_cards
-    user_selection = prompt.select("Bet or fold") do |menu|
-        menu.choice "Bet", -> {bet}
-        menu.choice "Fold", -> {play_add_money}
-    end
+# def play(user)
+#     prompt = TTY::Prompt.new
+#     deck = Deck.new
+#     deck.save
+#     userdeck = UserDeck.create
+#     print user_hole_cards = deck.deal_cards
+#     computer_hole_cards = deck.deal_cards
+#     user_selection = prompt.select("Bet or fold") do |menu|
+#         menu.choice "Bet", -> {bet}
+#         menu.choice "Fold", -> {play_add_money}
+#     end
 
+# end
 
-end
-
+system "clear"
 welcome
 isUser = true
 while isUser
@@ -191,8 +193,12 @@ play = play_add_money(user)
 #         exit
 
     # elsif user_selection == "Play" && user.wallet.money > 0
-    if play == "Play" && user.wallet.money > 0
+    if play == "Play" && user.wallet.money >= 50
+        system "clear"
         prompt = TTY::Prompt.new
+        wager = prompt.select("How much do you want to wager?", %w($10 $15 $20 $25 $50))
+        wager= wager.slice(1..-1).to_i
+        puts "Your current wallet amount : $#{user.bet(wager)}. Your current bet is $#{user.current_bet}."
         deck = Deck.new
         deck.save
         userdeck = UserDeck.create
@@ -205,6 +211,7 @@ play = play_add_money(user)
             user_selection = user_selection.slice(1..-1).to_i
             puts "Your current wallet amount : $#{user.bet(user_selection)}. Your current bet is $#{user.current_bet}."
             system "clear"
+            puts "Community cards:"
             deck.flop
             puts "Your cards:"
             deck.displaycard(user_hole_cards)
@@ -215,6 +222,7 @@ play = play_add_money(user)
                 puts "Your current wallet amount : $#{user.bet(user_selection)}. Your current bet is $#{user.current_bet}."
                 #user.bet
                 system "clear"
+                puts "Community cards:"
                 deck.turn_or_river
                 puts "Your cards:"
                 deck.displaycard(user_hole_cards)
@@ -225,10 +233,13 @@ play = play_add_money(user)
                     puts "Your current wallet amount : $#{user.bet(user_selection)}. Your current bet is $#{user.current_bet}."
                     #user.bet
                     system "clear"
+                    puts "Community cards:"
                     deck.turn_or_river
                     community_hand = deck.community_hand
+                    sleep(2)
                     puts "Computer's hole cards:"
                     deck.displaycard(computer_hole_cards)
+                    sleep(2)
                     puts "Your cards:"
                     deck.displaycard(user_hole_cards)
                     community_hand = deck.map_cards_to_ranks(community_hand)
@@ -243,6 +254,7 @@ play = play_add_money(user)
                     if user_hand > computer_hand
                         user.wallet.money += user.current_bet * 2
                         puts "You won!"
+                        sleep(2)
                         deck.outcome = "Win"
                         user.user_decks << userdeck
                         deck.user_decks << userdeck
@@ -251,13 +263,14 @@ play = play_add_money(user)
                         user.wallet.save
                     else
                         puts "You lost!"
+                        sleep(2)
                         deck.outcome = "Lost"
                         user.user_decks << userdeck
                         deck.user_decks << userdeck
                         deck.save
                         user.current_bet = 0
-                        if user.wallet.money < 30
-                            puts "You're out of money. Thanks for playing!"
+                        if user.wallet.money < 50
+                            puts "You have too little money. Thanks for playing!"
                             user.wallet.save
                             
                         end
@@ -267,20 +280,27 @@ play = play_add_money(user)
      
                 else
                 puts "Thanks for playing!"
+                sleep(2)
+                user.user_decks << userdeck
+                deck.user_decks << userdeck
                 
                 end
             else
                 puts "Thanks for playing!"
-                
+                sleep(2)
+                user.user_decks << userdeck
+                deck.user_decks << userdeck
             end
      
         else
             puts "Thanks for playing!"
-            
+            sleep(2)
+            user.user_decks << userdeck
+                deck.user_decks << userdeck
         end
     elsif user == nil
         puts "Thanks for playing. Sorry to see you go!"
-    elsif user.wallet.money < 10
+    elsif user.wallet.money < 50
         puts "You don't have enough to play. Add money."
         
     end
