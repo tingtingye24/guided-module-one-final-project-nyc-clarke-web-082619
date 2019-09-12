@@ -8,3 +8,5 @@ gem "require_all"
 gem "tty-prompt"
 gem "ruby-poker"
 gem 'rubycards'
+gem 'catpix'
+gem 'rmagick'
