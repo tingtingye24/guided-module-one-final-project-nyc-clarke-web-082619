@@ -1,6 +1,7 @@
 require 'bundler'
 require 'rubygems'
 require 'tty-prompt'
+require 'catpix'
 
 Bundler.require
 #require 'pry'

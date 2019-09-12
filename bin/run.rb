@@ -35,6 +35,17 @@ def login
     end
 end
 
+def cat_pix_image
+    Catpix::print_image "lib/all\ in\ poker.jpeg",
+    :limit_x => 1.0,
+    :limit_y => 0,
+    :center_x => true,
+    :center_y => true,
+    :bg => "white",
+    :bg_fill => true,
+    :resolution => "high"
+end
+
 def create
     prompt = TTY::Prompt.new
     user = prompt.ask("Create username. Type 'exit' to go back.")
@@ -138,61 +149,6 @@ user = login_create
 isPlaying = true
 while isPlaying
 play = play_add_money(user)
-# puts "Welcome to texas-holdem poker!"
-# prompt = TTY::Prompt.new
-# # isPlaying = true
-# login_create = prompt.select("Login or create user:", %w(Login Create))
-# isUsername = true
-# while isUsername
-#     if login_create == "Create"
-#         user = prompt.ask("Create usernameType 'exit' to quit.")
-#         if User.find_by(name: "#{user}")
-#         puts "Username already taken. Try again."
-#         elsif user == "exit"
-#             exit
-#         else
-#         wallet = Wallet.create(money: 100)
-#         user = User.create(name: "#{user}")
-#         user.wallet = wallet
-#         user.save
-#         isUsername = false
-#         end
-#     else
-#         user = prompt.ask("What's your username? Type 'exit' to quit.")
-#         if User.find_by(name: "#{user}")
-#         user = User.find_by(name: "#{user}")
-#         isUsername = false
-#         elsif user == "exit"
-#             exit
-#         else 
-#            puts "Username not found."
-#         end
-#     end
-# end
-# isSelecting = true
-# while isSelecting
-# prompt.keypress("You have $#{user.wallet.money}. Press any key to continue.")
-# user_selection = prompt.select("Play, check wallet, add money, or exit?", ["Play", "Check Wallet", "Add Money", "Exit"])
-#     if user_selection == "Check Wallet"
-#         puts user.wallet.money
-#     elsif user_selection == "Add Money"
-#         isMoney = true
-#         while isMoney
-#         user_selection = prompt.ask("How much would you like to add? (max: 500)")
-#         user_selection = user_selection.to_i
-#         if user_selection > 500 || user_selection < 0 
-#             puts "please enter something valid."
-#         else
-#             user.wallet.money += user_selection
-#             puts "You have #{user.wallet.money}"
-#             isMoney = false
-#             user.wallet.save
-#         end
-#     end
-#     elsif user_selection == "Exit"
-#         exit
-
-    # elsif user_selection == "Play" && user.wallet.money > 0
     if play == "Play" && user.wallet.money >= 50
         system "clear"
         prompt = TTY::Prompt.new
@@ -209,8 +165,12 @@ play = play_add_money(user)
         if user_selection == "Bet"
             user_selection = prompt.select("How much would you like to bet? :", ["$#{user.wallet.money}","$#{(user.wallet.money * 0.75).to_i}","$#{(user.wallet.money * 0.5).to_i}","$#{(user.wallet.money * 0.25).to_i}","$#{(user.wallet.money * 0.1).to_i}"])
             user_selection = user_selection.slice(1..-1).to_i
-            puts "Your current wallet amount : $#{user.bet(user_selection)}. Your current bet is $#{user.current_bet}."
             system "clear"
+            if user.wallet.money == user_selection && user.wallet.money != 0
+                cat_pix_image
+                sleep(2)
+             end
+            puts "Your current wallet amount : $#{user.bet(user_selection)}. Your current bet is $#{user.current_bet}."
             puts "Community cards:"
             deck.flop
             puts "Your cards:"
@@ -219,9 +179,14 @@ play = play_add_money(user)
             if user_selection2 == "Bet"
                 user_selection = prompt.select("How much would you like to bet? :", ["$#{user.wallet.money}","$#{(user.wallet.money * 0.75).to_i}","$#{(user.wallet.money * 0.5).to_i}","$#{(user.wallet.money * 0.25).to_i}","$#{(user.wallet.money * 0.1).to_i}"])
                 user_selection = user_selection.slice(1..-1).to_i
+                system "clear"
+                if user.wallet.money == user_selection && user.wallet.money != 0
+                    cat_pix_image
+                    sleep(2)
+                 end
                 puts "Your current wallet amount : $#{user.bet(user_selection)}. Your current bet is $#{user.current_bet}."
                 #user.bet
-                system "clear"
+                
                 puts "Community cards:"
                 deck.turn_or_river
                 puts "Your cards:"
@@ -230,7 +195,12 @@ play = play_add_money(user)
                 if user_selection3 == "Bet"
                     user_selection = prompt.select("How much would you like to bet? :", ["$#{user.wallet.money}","$#{(user.wallet.money * 0.75).to_i}","$#{(user.wallet.money * 0.5).to_i}","$#{(user.wallet.money * 0.25).to_i}","$#{(user.wallet.money * 0.1).to_i}"])
                     user_selection = user_selection.slice(1..-1).to_i
+                    if user.wallet.money == user_selection && user.wallet.money != 0
+                        cat_pix_image
+                        sleep(2)
+                     end
                     puts "Your current wallet amount : $#{user.bet(user_selection)}. Your current bet is $#{user.current_bet}."
+                    
                     #user.bet
                     system "clear"
                     puts "Community cards:"
@@ -283,6 +253,8 @@ play = play_add_money(user)
                 sleep(2)
                 user.user_decks << userdeck
                 deck.user_decks << userdeck
+                user.wallet.save
+                user.current_bet = 0
                 
                 end
             else
@@ -290,13 +262,17 @@ play = play_add_money(user)
                 sleep(2)
                 user.user_decks << userdeck
                 deck.user_decks << userdeck
+                user.wallet.save
+                user.current_bet = 0
             end
      
         else
             puts "Thanks for playing!"
             sleep(2)
             user.user_decks << userdeck
-                deck.user_decks << userdeck
+            deck.user_decks << userdeck
+            user.current_bet = 0
+            user.wallet.save
         end
     elsif user == nil
         puts "Thanks for playing. Sorry to see you go!"
