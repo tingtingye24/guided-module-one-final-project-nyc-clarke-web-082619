@@ -49,7 +49,7 @@ end
 
 def leaderboard(user)
     hash = User.all.reduce({}) do |hash, user|
-        hash[user.name] = user.win_percentage
+        hash[user.name] = user.win_percentag
         hash
     end
     hash = hash.delete_if {|k,v| v.nan?}
@@ -79,16 +79,16 @@ def create(name=nil)
 end
 
 def win_p(user)
-    if user.win_percentage >= 50
+    if user.win_percentag >= 50
         puts "You win #{user.win_percentage}% of the time."
-        puts "You fold #{user.fold_percentage}% of your hands."
+        puts "You fold #{user.fold_percentag}% of your hands."
         sleep(1)
         puts "Wow, you're a pro!"
         sleep(1)
         play_add_money(user)
-    elsif user.win_percentage < 50 && user.win_percentage >= 0
+    elsif user.win_percentag < 50 && user.win_percentag >= 0
         puts "You win #{user.win_percentage}% of the time."
-        puts "You fold #{user.fold_percentage}% of your hands."
+        puts "You fold #{user.fold_percentag}% of your hands."
         sleep(1)
         puts "You can do better!"
             sleep(1)
@@ -133,9 +133,9 @@ def add_money(user)
     prompt = TTY::Prompt.new
     user_selection = prompt.ask("How much would you like to add? (max: 500)")
         user_selection = user_selection.to_i
-        if user_selection > 500 || user_selection < 0 
+        if user_selection > 500 || user_selection < 0
             puts "Please enter something valid."
-            add_money
+            add_money(user)
         else
             user.wallet.money += user_selection
             user.wallet.save
@@ -146,7 +146,7 @@ end
 
 
 system "clear"
-#welcome
+welcome
 isUser = true
 while isUser
 user = login_create

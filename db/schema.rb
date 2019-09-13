@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190910142748) do
+ActiveRecord::Schema.define(version: 20190913141141) do
 
   create_table "decks", force: :cascade do |t|
     t.string "outcome"
@@ -23,6 +23,8 @@ ActiveRecord::Schema.define(version: 20190910142748) do
 
   create_table "users", force: :cascade do |t|
     t.string "name"
+    t.float  "win_percentage"
+    t.float  "fold_percentage"
   end
 
   create_table "wallets", force: :cascade do |t|

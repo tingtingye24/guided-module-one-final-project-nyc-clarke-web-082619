@@ -13,16 +13,22 @@ class User < ActiveRecord::Base
         self.wallet.money
     end
 
-    def win_percentage
+    def win_percentag
         wins = self.decks.select {|deck| deck[:outcome] == "Win"}
         losses = self.decks.select {|deck| deck[:outcome] == "Lost"}
     
-         ((wins.length.to_f/(losses.length+wins.length)) * 100).round(2)
+         wins = ((wins.length.to_f/(losses.length+wins.length)) * 100).round(2)
+         self.win_percentage = wins
+         self.save
+         wins
     end
 
-    def fold_percentage
+    def fold_percentag
         folds = self.decks.select {|deck| deck[:outcome] == nil}
 
-        ((folds.length.to_f/self.decks.length)* 100).round(2)
+        folds = ((folds.length.to_f/self.decks.length)* 100).round(2)
+        self.fold_percentage = folds
+        self.save
+        folds
     end
 end
