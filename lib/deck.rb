@@ -58,7 +58,17 @@ class Deck < ActiveRecord::Base
     charArray = card.split("")
     num= charArray[0]
     suit = charArray[1]
-    
+    if suit == "♥" || suit == "♦"
+            lines[0][index]=("┌─────────┐").red
+            lines[1][index]=("│#{num}#{suit}       │").red  # use two {} one for char, one for space or char
+            lines[2][index]=("│         │").red
+            lines[3][index]=("│         │").red
+            lines[4][index]=("│    #{suit}    │").red
+            lines[5][index]=("│         │").red
+            lines[6][index]=("│         │").red
+            lines[7][index]=("│       #{num}#{suit}│").red
+            lines[8][index]=("└─────────┘").red
+    else
             lines[0][index]=("┌─────────┐")
             lines[1][index]=("│#{num}#{suit}       │")  # use two {} one for char, one for space or char
             lines[2][index]=("│         │")
@@ -68,6 +78,7 @@ class Deck < ActiveRecord::Base
             lines[6][index]=("│         │")
             lines[7][index]=("│       #{num}#{suit}│")
             lines[8][index]=("└─────────┘")
+    end
     }
     lines.each_with_index{|item, index|
       item.each_with_index{|item2, index2|

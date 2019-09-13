@@ -78,6 +78,7 @@ def create(name=nil)
     end
 end
 
+
 def win_p(user)
     if user.win_percentag >= 50
         puts "You win #{user.win_percentage}% of the time."
