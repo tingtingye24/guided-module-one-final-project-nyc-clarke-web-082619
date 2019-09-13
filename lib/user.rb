@@ -23,6 +23,6 @@ class User < ActiveRecord::Base
     def fold_percentage
         folds = self.decks.select {|deck| deck[:outcome] == nil}
 
-        folds.length.to_f/self.decks.length.round(2)
+        ((folds.length.to_f/self.decks.length)* 100).round(2)
     end
 end

@@ -1,4 +1,5 @@
 require_relative '../config/environment'
+require "pry"
 
 ActiveRecord::Base.logger = nil
 
@@ -46,6 +47,21 @@ def cat_pix_image
     :resolution => "high"
 end
 
+def leaderboard(user)
+    hash = User.all.reduce({}) do |hash, user|
+        hash[user.name] = user.win_percentage
+        hash
+    end
+    hash = hash.delete_if {|k,v| v.nan?}
+    hash = hash.sort_by {|k,v| -v}
+    array = hash.map {|k,v| [k, v]} 
+    array.each_with_index {|ele,index|
+        puts ele.join(": ")
+    }
+    sleep(2)
+    play_add_money(user)
+end
+
 def create(name=nil)
     prompt = TTY::Prompt.new
     user = prompt.ask("Create username. Type 'exit' to go back.", default: name)
@@ -65,14 +81,14 @@ end
 def win_p(user)
     if user.win_percentage >= 50
         puts "You win #{user.win_percentage}% of the time."
-        puts "You fold #{user.fold_percentage}%"
+        puts "You fold #{user.fold_percentage}% of your hands."
         sleep(1)
         puts "Wow, you're a pro!"
         sleep(1)
         play_add_money(user)
     elsif user.win_percentage < 50 && user.win_percentage >= 0
         puts "You win #{user.win_percentage}% of the time."
-        puts "You fold #{user.fold_percentage}%"
+        puts "You fold #{user.fold_percentage}% of your hands."
         sleep(1)
         puts "You can do better!"
             sleep(1)
@@ -106,6 +122,7 @@ user_selection = prompt.select("Play, add money, or exit?") do |menu|
      menu.choice "Play", -> { 'Play' }
      menu.choice "Add Money", -> {add_money(user)} 
      menu.choice "Win Percentage", -> {win_p(user)}
+     menu.choice "Leaderboard", -> {leaderboard(user)}
      menu.choice "Delete account", ->{delete_user(user)}
      menu.choice "Exit", -> {exit}
     end
@@ -127,22 +144,9 @@ def add_money(user)
 
 end
 
-# def play(user)
-#     prompt = TTY::Prompt.new
-#     deck = Deck.new
-#     deck.save
-#     userdeck = UserDeck.create
-#     print user_hole_cards = deck.deal_cards
-#     computer_hole_cards = deck.deal_cards
-#     user_selection = prompt.select("Bet or fold") do |menu|
-#         menu.choice "Bet", -> {bet}
-#         menu.choice "Fold", -> {play_add_money}
-#     end
-
-# end
 
 system "clear"
-welcome
+#welcome
 isUser = true
 while isUser
 user = login_create
@@ -168,6 +172,7 @@ play = play_add_money(user)
             system "clear"
             if user.wallet.money == user_selection && user.wallet.money != 0
                 cat_pix_image
+                puts "YOU'RE ALL IN!"
                 sleep(2)
              end
             puts "Your current wallet amount : $#{user.bet(user_selection)}. Your current bet is $#{user.current_bet}."
@@ -182,6 +187,7 @@ play = play_add_money(user)
                 system "clear"
                 if user.wallet.money == user_selection && user.wallet.money != 0
                     cat_pix_image
+                    puts "YOU'RE ALL IN!"
                     sleep(2)
                  end
                 puts "Your current wallet amount : $#{user.bet(user_selection)}. Your current bet is $#{user.current_bet}."
@@ -197,6 +203,7 @@ play = play_add_money(user)
                     user_selection = user_selection.slice(1..-1).to_i
                     if user.wallet.money == user_selection && user.wallet.money != 0
                         cat_pix_image
+                        puts "YOU'RE ALL IN!"
                         sleep(2)
                      end
                     puts "Your current wallet amount : $#{user.bet(user_selection)}. Your current bet is $#{user.current_bet}."
